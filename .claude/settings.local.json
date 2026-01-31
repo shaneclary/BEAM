@@ -22,7 +22,13 @@
       "Bash(python:*)",
       "Bash(ping:*)",
       "Bash(pip show:*)",
-      "Bash(/c/Python314/python -m pip install:*)"
+      "Bash(/c/Python314/python -m pip install:*)",
+      "Bash(git commit:*)",
+      "Bash(winget install:*)",
+      "Bash(py:*)",
+      "Bash(wmic logicaldisk:*)",
+      "Bash(powershell -Command \"Get-PSDrive C | Select-Object Used,Free,@{N=''FreeGB'';E={[math]::Round\\($_Free/1GB,2\\)}}\")",
+      "Bash(set PIP_CACHE_DIR=D:pip_cache:*)"
     ]
   }
 }

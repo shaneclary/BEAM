@@ -35,14 +35,25 @@ interface IraResponse {
   confidence?: number;
 }
 
+// Model selection: use fine-tuned if enabled, otherwise base model
+const useFinetuned = process.env.USE_FINETUNED_IRA === 'true';
+const finetunedModel = process.env.HF_FINETUNED_MODEL || 'buildlikeshane/ira-beam-assistant';
+const baseModel = process.env.HF_BASE_MODEL || 'meta-llama/Llama-3.1-8B-Instruct';
+const enableFallback = process.env.IRA_ENABLE_FALLBACK !== 'false';
+
 // Default configuration
 const config: IraConfig = {
   apiKey: process.env.HUGGINGFACE_API_KEY || '',
-  model: process.env.HF_INFERENCE_MODEL || 'meta-llama/Llama-3.1-8B-Instruct',
+  model: useFinetuned ? finetunedModel : baseModel,
   embeddingModel: process.env.HF_EMBEDDING_MODEL || 'BAAI/bge-small-en-v1.5',
   maxTokens: parseInt(process.env.IRA_MAX_TOKENS || '1024'),
   temperature: parseFloat(process.env.IRA_TEMPERATURE || '0.7'),
 };
+
+// Log which model is active (server-side only)
+if (typeof window === 'undefined') {
+  console.log(`[Ira] Using ${useFinetuned ? 'fine-tuned' : 'base'} model: ${config.model}`);
+}
 
 // System prompt that defines Ira's personality
 const IRA_SYSTEM_PROMPT = `You are Ira, the wise and grounded AI mentor for BEAM (Business Entrepreneurship Access & Mentorship).
@@ -122,7 +133,45 @@ export async function generateEmbedding(text: string): Promise<number[]> {
 }
 
 /**
+ * Make a chat request to a specific model
+ */
+async function chatWithModel(
+  model: string,
+  messages: { role: string; content: string }[],
+): Promise<{ success: boolean; message: string; error?: string }> {
+  try {
+    const response = await fetch(`${HF_ROUTER_URL}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${config.apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model,
+        messages,
+        max_tokens: config.maxTokens,
+        temperature: config.temperature,
+        top_p: 0.9,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      return { success: false, message: '', error };
+    }
+
+    const result = await response.json();
+    const generatedText = result.choices?.[0]?.message?.content || '';
+
+    return { success: true, message: generatedText.trim() };
+  } catch (err) {
+    return { success: false, message: '', error: String(err) };
+  }
+}
+
+/**
  * Chat with Ira using HuggingFace Router (OpenAI-compatible)
+ * Includes automatic fallback to base model if fine-tuned model fails
  */
 export async function chat(
   messages: ChatMessage[],
@@ -139,31 +188,21 @@ export async function chat(
     ...messages,
   ];
 
-  const response = await fetch(`${HF_ROUTER_URL}/chat/completions`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${config.apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: config.model,
-      messages: allMessages,
-      max_tokens: config.maxTokens,
-      temperature: config.temperature,
-      top_p: 0.9,
-    }),
-  });
+  // Try primary model
+  let result = await chatWithModel(config.model, allMessages);
 
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Ira chat failed: ${error}`);
+  // Fallback to base model if fine-tuned fails and fallback is enabled
+  if (!result.success && enableFallback && useFinetuned) {
+    console.warn(`[Ira] Fine-tuned model failed, falling back to base model: ${result.error}`);
+    result = await chatWithModel(baseModel, allMessages);
   }
 
-  const result = await response.json();
-  const generatedText = result.choices?.[0]?.message?.content || '';
+  if (!result.success) {
+    throw new Error(`Ira chat failed: ${result.error}`);
+  }
 
   return {
-    message: generatedText.trim(),
+    message: result.message,
   };
 }
 
@@ -240,6 +279,51 @@ export function getCapabilities() {
   };
 }
 
+/**
+ * Get current model configuration info
+ */
+export function getModelInfo() {
+  return {
+    activeModel: config.model,
+    isFineTuned: useFinetuned,
+    finetunedModel,
+    baseModel,
+    fallbackEnabled: enableFallback,
+    maxTokens: config.maxTokens,
+    temperature: config.temperature,
+  };
+}
+
+/**
+ * Health check - verify Ira can respond
+ */
+export async function healthCheck(): Promise<{
+  status: 'ok' | 'degraded' | 'error';
+  model: string;
+  latencyMs: number;
+  message?: string;
+}> {
+  const start = Date.now();
+
+  try {
+    const response = await ask('Hello');
+    const latencyMs = Date.now() - start;
+
+    return {
+      status: response.length > 0 ? 'ok' : 'degraded',
+      model: config.model,
+      latencyMs,
+    };
+  } catch (err) {
+    return {
+      status: 'error',
+      model: config.model,
+      latencyMs: Date.now() - start,
+      message: String(err),
+    };
+  }
+}
+
 export default {
   chat,
   ask,
@@ -249,6 +333,8 @@ export default {
   getDisclaimer,
   shouldHandoffToMentor,
   getCapabilities,
+  getModelInfo,
+  healthCheck,
   permissions,
   capabilities,
   boundaries,
