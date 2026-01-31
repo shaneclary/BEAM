@@ -1,0 +1,242 @@
+{
+  "assistant": {
+    "name": "Ira",
+    "version": "1.0.0",
+    "description": "BEAM AI Assistant - Business Entrepreneurship Access & Mentorship"
+  },
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.sba.gov)",
+      "WebFetch(domain:www.score.org)",
+      "WebFetch(domain:academy.score.org)",
+      "WebFetch(domain:www.californiasbdc.org)",
+      "WebFetch(domain:centralcoastsbdc.com)",
+      "WebFetch(domain:smallbizla.org)",
+      "WebFetch(domain:www.irs.gov)",
+      "WebFetch(domain:www.sos.ca.gov)",
+      "WebFetch(domain:business.ca.gov)",
+      "WebFetch(domain:www.census.gov)",
+      "WebFetch(domain:www.bls.gov)",
+      "Read(path:knowledge-base/*)",
+      "Read(path:resources/*)",
+      "Read(path:guides/*)",
+      "VectorSearch(index:beam-knowledge)",
+      "VectorSearch(index:mentor-expertise)",
+      "VectorSearch(index:business-guides)",
+      "Embedding(model:BAAI/bge-small-en-v1.5)",
+      "Embedding(model:BAAI/bge-large-en-v1.5)",
+      "Chat(model:mistralai/Mistral-7B-Instruct-v0.3)",
+      "Chat(model:meta-llama/Llama-3.1-8B-Instruct)",
+      "Database(table:conversations:read)",
+      "Database(table:conversations:write)",
+      "Database(table:user_sessions:read)",
+      "Database(table:user_sessions:write)",
+      "Database(table:mentor_profiles:read)",
+      "Database(table:resources:read)",
+      "Database(table:feedback:write)",
+      "Analytics(event:chat_started)",
+      "Analytics(event:chat_completed)",
+      "Analytics(event:resource_recommended)",
+      "Analytics(event:mentor_referral)",
+      "Email(template:mentor_notification)",
+      "Email(template:resource_summary)"
+    ],
+    "deny": [
+      "Database(table:*:delete)",
+      "Database(table:users:write)",
+      "Database(table:mentor_profiles:write)",
+      "Email(template:*:bulk)",
+      "Bash(*)",
+      "Write(*)",
+      "Execute(*)",
+      "Admin(*)"
+    ]
+  },
+  "capabilities": {
+    "chat": {
+      "enabled": true,
+      "maxTokens": 1024,
+      "maxConversationLength": 50,
+      "streamingEnabled": true
+    },
+    "rag": {
+      "enabled": true,
+      "topK": 5,
+      "similarityThreshold": 0.7,
+      "rerankEnabled": true,
+      "hybridSearch": true
+    },
+    "memory": {
+      "enabled": true,
+      "sessionPersistence": true,
+      "crossSessionMemory": false,
+      "maxHistoryMessages": 20
+    },
+    "tools": {
+      "webSearch": false,
+      "calculator": true,
+      "calendarBooking": false,
+      "formFilling": false,
+      "documentGeneration": false
+    }
+  },
+  "boundaries": {
+    "topics": {
+      "allowed": [
+        "business_planning",
+        "market_research",
+        "funding_options",
+        "legal_structures",
+        "marketing_basics",
+        "financial_literacy",
+        "hiring_practices",
+        "operations",
+        "technology",
+        "growth_strategies",
+        "mentor_matching",
+        "resource_navigation",
+        "event_information",
+        "program_enrollment"
+      ],
+      "restricted": [
+        "specific_legal_advice",
+        "specific_tax_advice",
+        "specific_investment_advice",
+        "medical_advice",
+        "personal_counseling"
+      ],
+      "forbidden": [
+        "illegal_activities",
+        "discrimination",
+        "harassment",
+        "competitor_disparagement",
+        "political_advocacy"
+      ]
+    },
+    "responses": {
+      "requireDisclaimer": [
+        "legal",
+        "tax",
+        "financial",
+        "regulatory"
+      ],
+      "escalateToMentor": [
+        "complex_legal",
+        "complex_financial",
+        "industry_specific_deep",
+        "crisis_situation",
+        "funding_negotiation"
+      ],
+      "maxConfidenceWithoutCitation": 0.6
+    }
+  },
+  "safety": {
+    "contentModeration": {
+      "enabled": true,
+      "provider": "openai",
+      "blockThreshold": 0.8
+    },
+    "piiProtection": {
+      "enabled": true,
+      "detectTypes": ["ssn", "credit_card", "bank_account", "password"],
+      "action": "redact_and_warn"
+    },
+    "rateLimit": {
+      "messagesPerMinute": 20,
+      "messagesPerHour": 200,
+      "messagesPerDay": 1000
+    },
+    "guardrails": {
+      "noFinancialGuarantees": true,
+      "noSuccessPromises": true,
+      "noCompetitorComparisons": true,
+      "alwaysSuggestProfessional": ["legal", "tax", "medical"]
+    }
+  },
+  "knowledge": {
+    "sources": [
+      {
+        "name": "BEAM Guides",
+        "type": "vector_store",
+        "index": "beam-knowledge",
+        "priority": 1
+      },
+      {
+        "name": "SCORE Resources",
+        "type": "vector_store",
+        "index": "score-resources",
+        "priority": 2
+      },
+      {
+        "name": "SBA Content",
+        "type": "web_fetch",
+        "domain": "www.sba.gov",
+        "priority": 3
+      },
+      {
+        "name": "Mentor Expertise",
+        "type": "vector_store",
+        "index": "mentor-expertise",
+        "priority": 2
+      }
+    ],
+    "training": {
+      "baseModel": "mistralai/Mistral-7B-Instruct-v0.3",
+      "fineTunedModel": null,
+      "lastTrainingDate": null,
+      "trainingDataSources": [
+        "beam_guides",
+        "score_academy",
+        "mentor_transcripts",
+        "success_stories"
+      ]
+    }
+  },
+  "handoff": {
+    "mentorReferral": {
+      "enabled": true,
+      "triggerConditions": [
+        "user_requests_mentor",
+        "complex_question_detected",
+        "industry_specific_need",
+        "confidence_below_threshold"
+      ],
+      "notificationMethod": "email",
+      "includeConversationSummary": true
+    },
+    "humanEscalation": {
+      "enabled": true,
+      "triggers": [
+        "frustration_detected",
+        "repeated_misunderstanding",
+        "sensitive_topic",
+        "explicit_request"
+      ]
+    }
+  },
+  "analytics": {
+    "trackEvents": [
+      "conversation_started",
+      "conversation_completed",
+      "question_asked",
+      "resource_recommended",
+      "mentor_referred",
+      "feedback_received",
+      "topic_discussed",
+      "handoff_triggered"
+    ],
+    "metrics": [
+      "response_time",
+      "conversation_length",
+      "user_satisfaction",
+      "resolution_rate",
+      "handoff_rate"
+    ]
+  },
+  "disclaimers": {
+    "general": "Ira provides general business guidance only. For specific legal, tax, or financial advice, please consult a qualified professional.",
+    "legal": "This is general information, not legal advice. Please consult an attorney for your specific situation.",
+    "tax": "This is general information, not tax advice. Please consult a CPA or tax professional.",
+    "financial": "This is general information, not financial advice. Please consult a financial advisor."
+  }
+}

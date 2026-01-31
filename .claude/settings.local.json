@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.sba.gov)",
+      "WebFetch(domain:www.californiasbdc.org)",
+      "WebFetch(domain:centralcoastsbdc.com)",
+      "WebFetch(domain:smallbizla.org)",
+      "Bash(dir /s /b \"D:\\\\BEAM-SCORE-Resources\")",
+      "Bash(npm run dev:*)",
+      "WebFetch(domain:academy.score.org)",
+      "Bash(ls:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nBEAM Platform v1.0 - Complete business resource platform\n\nFeatures:\n- 70+ content guides and checklists for entrepreneurs\n- 12 industry-specific guides \\(restaurant, retail, tech, etc.\\)\n- 5 interactive tools \\(calculators, quizzes, funding finder\\)\n- RAG-powered chatbot with vector search API\n- Full Spanish language support\n- Progress tracking system\n- SCORE Santa Barbara integration\n\nInfrastructure:\n- Supabase vector search with pgvector\n- HuggingFace embeddings \\(bge-small-en-v1.5\\)\n- Responsive website with consistent navigation\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(npx serve:*)",
+      "Bash(timeout:*)",
+      "Bash(curl:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx tsc:*)"
+    ]
+  }
+}
