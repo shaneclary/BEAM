@@ -1,0 +1,32 @@
+# SCORE.org Content Scraper
+# ==========================
+
+# HTTP & Scraping
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+lxml>=5.0.0
+html2text>=2024.2.26
+
+# Async for faster scraping
+aiohttp>=3.9.0
+aiofiles>=23.2.0
+
+# Rate limiting & retries
+tenacity>=8.2.0
+ratelimit>=2.2.1
+
+# Data processing
+pandas>=2.0.0
+jsonlines>=4.0.0
+
+# Text processing
+tiktoken>=0.5.0
+nltk>=3.8.0
+
+# Progress & display
+tqdm>=4.66.0
+rich>=13.0.0
+
+# Utils
+python-dotenv>=1.0.0
+pyyaml>=6.0

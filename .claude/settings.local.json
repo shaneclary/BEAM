@@ -16,7 +16,13 @@
       "Bash(timeout:*)",
       "Bash(curl:*)",
       "Bash(npm run build:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd Ira AI assistant with HuggingFace integration\n\nFeatures:\n- Ira chatbot with Buffett wisdom, Robbins energy, Singer presence\n- Floating chat UI component with real-time messaging\n- HuggingFace Router API integration \\(Llama 3.1 8B\\)\n- Permissions and safety guardrails system\n- Training pipeline for fine-tuning on BEAM content\n\nInfrastructure:\n- Next.js 14 site with Supabase and LibreTranslate\n- API routes for chat and capabilities\n- Ira config with topic boundaries and disclaimers\n\nIncludes:\n- BEAM AI strategy document\n- Wix website scraper guide\n- LibreTranslate integration\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(pip install:*)",
+      "Bash(python:*)",
+      "Bash(ping:*)",
+      "Bash(pip show:*)",
+      "Bash(/c/Python314/python -m pip install:*)"
     ]
   }
 }

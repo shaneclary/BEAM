@@ -45,7 +45,7 @@ def load_documents(data_dir: str = "data") -> List[Dict]:
 
     # Load JSON/JSONL files
     for jsonl_file in data_path.rglob("*.jsonl"):
-        with open(jsonl_file) as f:
+        with open(jsonl_file, encoding="utf-8") as f:
             for line in f:
                 if line.strip():
                     documents.append(json.loads(line))
@@ -149,65 +149,56 @@ def create_business_qa_examples() -> List[Dict]:
 
 def prepare_training_data():
     """Main function to prepare all training data."""
-    console.print("\n[bold blue]🧠 Ira Training Data Preparation[/bold blue]\n")
+    print("\n=== Ira Training Data Preparation ===\n")
 
     all_examples = []
 
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        console=console
-    ) as progress:
+    # Load existing documents
+    print("Loading documents...")
+    documents = load_documents()
+    print(f"  Loaded {len(documents)} existing documents")
 
-        # Load existing documents
-        task = progress.add_task("Loading documents...", total=None)
-        documents = load_documents()
-        console.print(f"  📄 Loaded {len(documents)} existing documents")
+    # Create wisdom examples
+    print("Generating wisdom examples...")
+    wisdom_examples = create_wisdom_examples()
+    all_examples.extend(wisdom_examples)
+    print(f"  Generated {len(wisdom_examples)} wisdom examples")
 
-        # Create wisdom examples
-        progress.update(task, description="Generating wisdom examples...")
-        wisdom_examples = create_wisdom_examples()
-        all_examples.extend(wisdom_examples)
-        console.print(f"  ✨ Generated {len(wisdom_examples)} wisdom examples")
+    # Create business Q&A examples
+    print("Generating business Q&A...")
+    qa_examples = create_business_qa_examples()
+    all_examples.extend(qa_examples)
+    print(f"  Generated {len(qa_examples)} business Q&A examples")
 
-        # Create business Q&A examples
-        progress.update(task, description="Generating business Q&A...")
-        qa_examples = create_business_qa_examples()
-        all_examples.extend(qa_examples)
-        console.print(f"  💼 Generated {len(qa_examples)} business Q&A examples")
+    # Add loaded documents
+    if documents:
+        all_examples.extend(documents)
 
-        # Add loaded documents
-        if documents:
-            all_examples.extend(documents)
+    # Shuffle and split
+    print("Preparing train/eval split...")
+    random.shuffle(all_examples)
 
-        # Shuffle and split
-        progress.update(task, description="Preparing train/eval split...")
-        random.shuffle(all_examples)
+    split_idx = int(len(all_examples) * (1 - config["data"]["eval_split"]))
+    train_data = all_examples[:split_idx]
+    eval_data = all_examples[split_idx:]
 
-        split_idx = int(len(all_examples) * (1 - config["data"]["eval_split"]))
-        train_data = all_examples[:split_idx]
-        eval_data = all_examples[split_idx:]
+    # Save files
+    print("Saving training files...")
 
-        # Save files
-        progress.update(task, description="Saving training files...")
+    Path("data").mkdir(exist_ok=True)
 
-        Path("data").mkdir(exist_ok=True)
+    with open("data/train.jsonl", "w", encoding="utf-8") as f:
+        for example in train_data:
+            f.write(json.dumps(example, ensure_ascii=False) + "\n")
 
-        with open("data/train.jsonl", "w") as f:
-            for example in train_data:
-                f.write(json.dumps(example) + "\n")
+    with open("data/eval.jsonl", "w", encoding="utf-8") as f:
+        for example in eval_data:
+            f.write(json.dumps(example, ensure_ascii=False) + "\n")
 
-        with open("data/eval.jsonl", "w") as f:
-            for example in eval_data:
-                f.write(json.dumps(example) + "\n")
-
-        progress.update(task, description="Complete!")
-
-    console.print(f"\n[green]✅ Training data prepared![/green]")
-    console.print(f"   📊 Train: {len(train_data)} examples")
-    console.print(f"   📊 Eval:  {len(eval_data)} examples")
-    console.print(f"\n   Files saved to data/train.jsonl and data/eval.jsonl")
-    console.print(f"\n[yellow]💡 Add more examples to data/ subdirectories for richer training[/yellow]\n")
+    print(f"\n=== Training data prepared! ===")
+    print(f"   Train: {len(train_data)} examples")
+    print(f"   Eval:  {len(eval_data)} examples")
+    print(f"\n   Files saved to data/train.jsonl and data/eval.jsonl\n")
 
 
 if __name__ == "__main__":

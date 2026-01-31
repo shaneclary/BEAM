@@ -1,0 +1,182 @@
+# SCORE.org Content Scraper Configuration
+# ========================================
+
+scraper:
+  base_url: "https://www.score.org"
+
+  # Be respectful - 2 second delay between requests
+  delay_seconds: 2.0
+  max_retries: 3
+  timeout_seconds: 30
+
+  # Concurrent requests (keep low to be polite)
+  max_concurrent: 3
+
+  # User agent (identify ourselves)
+  user_agent: "BEAM-Content-Scraper/1.0 (Educational; contact@beam.org)"
+
+# Content sources to scrape (ordered by priority)
+sources:
+  # Startup Roadmap - Core curriculum
+  - name: "Startup Roadmap"
+    url: "/startup-roadmap"
+    type: "course"
+    priority: 1
+    description: "12-module structured business course"
+
+  # Templates & Tools - High value, practical
+  - name: "Business Plan Templates"
+    url: "/templates-resources/business-planning-financial-statements-template-gallery"
+    type: "templates"
+    priority: 1
+    description: "26+ downloadable templates"
+
+  # Business Stage Content
+  - name: "Plan + Start"
+    url: "/view-business-stage/plan-start"
+    type: "hub"
+    priority: 2
+
+  - name: "Manage + Grow"
+    url: "/view-business-stage/manage-grow"
+    type: "hub"
+    priority: 2
+
+  - name: "Transition + Exit"
+    url: "/view-business-stage/transition-exit"
+    type: "hub"
+    priority: 3
+
+  # Industry-Specific Guides
+  - name: "Food Services"
+    url: "/resources-food-services"
+    type: "industry"
+    priority: 2
+
+  - name: "Retail"
+    url: "/resources-retail"
+    type: "industry"
+    priority: 2
+
+  - name: "Manufacturing"
+    url: "/resources-manufacturing"
+    type: "industry"
+    priority: 2
+
+  # Entrepreneur Groups
+  - name: "Women Entrepreneurs"
+    url: "/women-entrepreneurs"
+    type: "audience"
+    priority: 2
+
+  - name: "Veteran Entrepreneurs"
+    url: "/veteran-entrepreneurs"
+    type: "audience"
+    priority: 2
+
+  - name: "Rural Entrepreneurs"
+    url: "/page/rural-entrepreneurs"
+    type: "audience"
+    priority: 3
+
+  # Business Education
+  - name: "Business Education"
+    url: "/business-education"
+    type: "courses"
+    priority: 2
+
+  # Free Online Courses (High Value)
+  - name: "E-Commerce Course"
+    url: "/getting-started-e-commerce"
+    type: "course"
+    priority: 1
+
+  - name: "Simple Steps Starting"
+    url: "/simple-steps-starting-your-business-online-course"
+    type: "course"
+    priority: 1
+
+  - name: "Exiting Your Business"
+    url: "/simple-steps-exiting-your-business"
+    type: "course"
+    priority: 2
+
+  - name: "Crisis Management"
+    url: "/small-business-crisis-management"
+    type: "course"
+    priority: 2
+
+  - name: "Online Marketing"
+    url: "/online-marketing-small-business-owners"
+    type: "course"
+    priority: 1
+
+  # Success Stories
+  - name: "Success Stories"
+    url: "/success-stories-search"
+    type: "stories"
+    priority: 3
+
+  # Special Hubs
+  - name: "Small Business Resilience"
+    url: "/templates-resources/small-business-resilience-hub"
+    type: "hub"
+    priority: 2
+
+# Content type patterns for link discovery
+content_patterns:
+  articles:
+    - "/resource/article/"
+    - "/resource/blog-post/"
+  templates:
+    - "/resource/template/"
+    - "/resource/eguide/"
+  courses:
+    - "/course/"
+    - "/startup-roadmap/"
+  webinars:
+    - "/recorded-webinar/"
+    - "/webinar/"
+  stories:
+    - "/success-story/"
+
+# Quality scoring weights
+scoring:
+  # Content quality indicators
+  word_count_min: 300
+  word_count_optimal: 1500
+
+  # Priority topics (higher value for training)
+  high_value_topics:
+    - "business plan"
+    - "funding"
+    - "cash flow"
+    - "marketing"
+    - "pricing"
+    - "customer"
+    - "startup"
+    - "financial"
+    - "legal structure"
+    - "hiring"
+    - "growth"
+    - "sales"
+
+  # Recency bonus (newer = higher score)
+  recency_weight: 0.2
+
+  # Comprehensiveness bonus
+  depth_weight: 0.3
+
+  # Topic relevance
+  topic_weight: 0.5
+
+output:
+  # Where to save scraped content
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  training_dir: "output/training"
+
+  # Training output formats
+  formats:
+    - "jsonl"      # For fine-tuning
+    - "markdown"   # For review
