@@ -34,7 +34,7 @@ def main():
     print("FINE-TUNED IRA ACTIVATED!")
     print("=" * 50)
     print()
-    print("Ira will now use: buildlikeshane/ira-beam-assistant")
+    print("Ira will now use: BEAMcollective/ira-beam-assistant")
     print()
     print("Next steps:")
     print("  1. Restart your dev server: npm run dev")

@@ -3,7 +3,7 @@
 
 model:
   base: "meta-llama/Llama-3.1-8B-Instruct"
-  output_repo: "buildlikeshane/ira-beam-assistant"
+  output_repo: "BEAMcollective/ira-beam-assistant"
 
 training:
   # LoRA settings (efficient fine-tuning)

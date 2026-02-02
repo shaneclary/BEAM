@@ -49,7 +49,7 @@ CONFIG = {
     # Alternative: "TinyLlama/TinyLlama-1.1B-Chat-v1.0"  # Even smaller
 
     "output_dir": "./ira-gtx1060-output",
-    "hub_repo": "buildlikeshane/ira-beam-assistant",
+    "hub_repo": "BEAMcollective/ira-beam-assistant",
 
     # Memory optimization for 6GB VRAM
     "load_in_4bit": True,

@@ -37,7 +37,7 @@ interface IraResponse {
 
 // Model selection: use fine-tuned if enabled, otherwise base model
 const useFinetuned = process.env.USE_FINETUNED_IRA === 'true';
-const finetunedModel = process.env.HF_FINETUNED_MODEL || 'buildlikeshane/ira-beam-assistant';
+const finetunedModel = process.env.HF_FINETUNED_MODEL || 'BEAMcollective/ira-beam-assistant';
 const baseModel = process.env.HF_BASE_MODEL || 'meta-llama/Llama-3.1-8B-Instruct';
 const enableFallback = process.env.IRA_ENABLE_FALLBACK !== 'false';
 
