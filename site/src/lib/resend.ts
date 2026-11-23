@@ -1,6 +1,12 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+let resendClient: Resend | null = null
+
+/** Created on first use, so the build does not need the Resend key. */
+function getResend(): Resend {
+  if (!resendClient) resendClient = new Resend(process.env.RESEND_API_KEY)
+  return resendClient
+}
 
 interface ContactEmailData {
   name: string
@@ -15,7 +21,7 @@ interface ContactEmailData {
 export async function sendContactNotification(data: ContactEmailData) {
   const toEmail = process.env.CONTACT_EMAIL || 'hello@beam.dev'
 
-  const { data: result, error } = await resend.emails.send({
+  const { data: result, error } = await getResend().emails.send({
     from: 'BEAM Contact Form <notifications@beam.dev>',
     to: [toEmail],
     reply_to: data.email,
@@ -33,7 +39,7 @@ export async function sendContactNotification(data: ContactEmailData) {
 }
 
 export async function sendContactConfirmation(data: ContactEmailData) {
-  const { data: result, error } = await resend.emails.send({
+  const { data: result, error } = await getResend().emails.send({
     from: 'BEAM <hello@beam.dev>',
     to: [data.email],
     subject: `Thanks for reaching out, ${data.name.split(' ')[0]}!`,

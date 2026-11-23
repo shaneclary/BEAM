@@ -1,9 +1,17 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+let supabaseClient: SupabaseClient | null = null
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+/** Created on first use, so the build does not need the Supabase keys. */
+export function getSupabase(): SupabaseClient {
+  if (!supabaseClient) {
+    supabaseClient = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+  }
+  return supabaseClient
+}
 
 // Database types
 export interface ContactSubmission {
@@ -21,7 +29,7 @@ export interface ContactSubmission {
 
 // Helper functions
 export async function saveContactSubmission(data: Omit<ContactSubmission, 'id' | 'created_at' | 'status'>) {
-  const { data: result, error } = await supabase
+  const { data: result, error } = await getSupabase()
     .from('contact_submissions')
     .insert([
       {
@@ -47,7 +55,7 @@ export async function saveContactSubmission(data: Omit<ContactSubmission, 'id' |
 }
 
 export async function getContactSubmissions() {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('contact_submissions')
     .select('*')
     .order('created_at', { ascending: false })
