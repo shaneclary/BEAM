@@ -18,7 +18,7 @@ export async function sendContactNotification(data: ContactEmailData) {
   const { data: result, error } = await resend.emails.send({
     from: 'BEAM Contact Form <notifications@beam.dev>',
     to: [toEmail],
-    replyTo: data.email,
+    reply_to: data.email,
     subject: `New Contact: ${data.name} - ${data.service}`,
     html: generateNotificationEmail(data),
     text: generateNotificationEmailText(data),
