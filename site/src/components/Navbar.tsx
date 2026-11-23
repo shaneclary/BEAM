@@ -15,6 +15,7 @@ const navLinks = [
       { href: '/workshops', label: 'Workshops & Events' },
       { href: '/courses', label: 'Online Courses' },
       { href: '/resources', label: 'Resource Library' },
+      { href: '/analyzer', label: 'Contract Analyzer' },
     ]
   },
   { href: '#features', label: 'Why BEAM' },

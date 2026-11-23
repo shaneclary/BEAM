@@ -71,6 +71,30 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000)
 
+## Contract Analyzer
+
+`/analyzer` scores a pasted loan or investment contract out of 75 points:
+
+- **Deal terms (40):** eight criteria built from the financing guidance in the SCORE resource library (`scraper/data/raw/score_content.json`). Each criterion links to the SCORE resource it comes from.
+- **Contract readiness (35):** seven standard contract checks. These do not come from SCORE's library.
+
+It runs in the browser. The contract text is never uploaded or saved.
+
+It reads what the document says. It cannot judge whether a term is fair or whether a statement is true, and it is not legal advice.
+
+| File | Purpose |
+|------|---------|
+| `src/lib/contractRubric.ts` | The criteria, their checks and their SCORE sources. Edit this to change what is scored. |
+| `src/lib/contractAnalyzer.ts` | The scoring function. No network calls. |
+| `src/lib/contractAnalyzer.test.ts` | Tests. Uses made-up contracts only: this repository is public. |
+| `src/components/ContractAnalyzer.tsx` | The page UI. |
+
+Run the tests (Node 22.6 or later, no extra packages):
+
+```bash
+npm test
+```
+
 ## Deployment
 
 ### Deploy to Vercel
